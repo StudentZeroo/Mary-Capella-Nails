@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AuraNativa Studio - Custom Stylesheet
+   AuraNativa Beauty - Custom Stylesheet
    Theme: Luxury, Earthy, Organic Spa (Moss Green, Gold, Warm Chocolate, Cream)
    ========================================================================== */
 
@@ -1458,3 +1458,566 @@ body.loaded .hero-image-frame {
     border-color: var(--color-gold-glow);
   }
 }
+
+/* ==========================================================================
+   How It Works Section ("A Experiência a Domicílio")
+   ========================================================================== */
+.how-it-works-section {
+  background-color: var(--color-bg-light);
+  padding: 100px 0;
+  border-top: 1px solid rgba(212, 175, 55, 0.08);
+}
+
+.experience-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 40px;
+  margin-top: 50px;
+}
+
+.experience-card {
+  background: #ffffff;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  padding: 40px 30px;
+  border-radius: 12px;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  box-shadow: 0 4px 20px rgba(60, 42, 33, 0.02);
+}
+
+.experience-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--color-gold);
+  box-shadow: 0 10px 30px rgba(60, 42, 33, 0.05), 0 0 15px rgba(212, 175, 55, 0.05);
+}
+
+.experience-icon-wrapper {
+  width: 70px;
+  height: 70px;
+  background-color: rgba(27, 59, 43, 0.03);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 25px;
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  color: var(--color-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.experience-card:hover .experience-icon-wrapper {
+  background-color: var(--color-primary);
+  color: #ffffff;
+}
+
+.experience-icon {
+  fill: currentColor;
+}
+
+.experience-card h3 {
+  font-family: var(--font-title);
+  color: var(--color-primary);
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.experience-card p {
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ==========================================================================
+   Simulator Section ("Monte Seu Momento")
+   ========================================================================== */
+.simulator-section {
+  padding: 100px 0;
+  background-color: #ffffff;
+  border-top: 1px solid rgba(212, 175, 55, 0.08);
+  position: relative;
+}
+
+.simulator-grid {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.simulator-intro .text-large {
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  margin: 20px 0;
+  line-height: 1.6;
+  font-family: var(--font-body);
+}
+
+.simulator-intro .text-muted {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+  margin-bottom: 30px;
+}
+
+.benefits-mini-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.benefit-mini-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-text-dark);
+}
+
+.simulator-card-wrapper {
+  background: var(--color-bg-light);
+  border: 1px solid rgba(212, 175, 55, 0.15);
+  border-radius: 16px;
+  padding: 30px;
+  box-shadow: 0 10px 40px rgba(60, 42, 33, 0.03);
+}
+
+.simulator-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 35px 30px;
+  border: 1px solid rgba(212, 175, 55, 0.08);
+}
+
+/* Steps Header */
+.sim-steps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 40px;
+  position: relative;
+}
+
+.sim-step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: 2;
+  cursor: default;
+}
+
+.step-num {
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-bg-light);
+  border: 1.5px solid rgba(212, 175, 55, 0.3);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  transition: all 0.3s ease;
+  font-family: var(--font-body);
+}
+
+.step-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-top: 6px;
+  color: var(--color-text-muted);
+  font-family: var(--font-body);
+  transition: color 0.3s ease;
+}
+
+.sim-step-indicator.active .step-num {
+  background-color: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(27, 59, 43, 0.2);
+}
+
+.sim-step-indicator.active .step-label {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.sim-step-indicator.completed .step-num {
+  background-color: var(--color-gold);
+  border-color: var(--color-gold);
+  color: #ffffff;
+}
+
+.sim-step-indicator.completed .step-label {
+  color: var(--color-gold-dark);
+}
+
+.sim-step-line {
+  flex-grow: 1;
+  height: 2px;
+  background-color: rgba(212, 175, 55, 0.15);
+  margin: 0 10px;
+  transform: translateY(-13px);
+  z-index: 1;
+}
+
+/* Step Content Panels */
+.sim-step-content {
+  display: none;
+}
+
+.sim-step-content.active {
+  display: block;
+  animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.sim-step-title {
+  font-family: var(--font-title);
+  color: var(--color-primary);
+  font-size: 1.4rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.sim-step-desc {
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin-bottom: 25px;
+  line-height: 1.5;
+}
+
+.sim-options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+}
+
+.sim-option-card {
+  position: relative;
+  background-color: var(--color-bg-light);
+  border: 1.5px solid rgba(212, 175, 55, 0.1);
+  border-radius: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.25s ease;
+}
+
+.sim-option-card:hover {
+  border-color: rgba(212, 175, 55, 0.4);
+  background-color: #ffffff;
+}
+
+/* Inputs styling */
+.sim-checkbox, .sim-radio {
+  margin-right: 15px;
+  accent-color: var(--color-primary);
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.option-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.option-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  color: var(--color-text-dark);
+  font-size: 0.95rem;
+}
+
+.option-details {
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  margin-top: 3px;
+}
+
+/* Selected state card */
+.sim-option-card:has(input:checked) {
+  background-color: rgba(212, 175, 55, 0.05);
+  border-color: var(--color-gold);
+  box-shadow: 0 4px 12px rgba(212, 175, 55, 0.06);
+}
+
+.sim-option-card:has(input:checked) .option-title {
+  color: var(--color-primary);
+}
+
+/* Name input styling */
+.sim-name-input-wrapper {
+  margin-bottom: 25px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.input-label {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-text-dark);
+}
+
+.sim-text-input {
+  width: 100%;
+  padding: 14px 18px;
+  border-radius: 8px;
+  border: 1.5px solid rgba(212, 175, 55, 0.2);
+  background-color: var(--color-bg-light);
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  color: var(--color-text-dark);
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.sim-text-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background-color: #ffffff;
+}
+
+/* Receipt box styling */
+.sim-receipt-box {
+  background: var(--color-bg-light);
+  border: 1px dashed rgba(212, 175, 55, 0.4);
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 30px;
+  font-family: var(--font-body);
+}
+
+.receipt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.receipt-brand {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: var(--color-primary);
+  letter-spacing: 0.5px;
+}
+
+.receipt-date {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.receipt-divider {
+  border-top: 1px dashed rgba(212, 175, 55, 0.25);
+  margin: 12px 0;
+}
+
+.receipt-items {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.receipt-item-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: var(--color-text-dark);
+}
+
+.receipt-item-price {
+  font-weight: 500;
+}
+
+.receipt-totals {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.receipt-total-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+}
+
+.receipt-total-row.total-highlight {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-top: 4px;
+}
+
+.receipt-val {
+  font-weight: 700;
+}
+
+.receipt-total-row.total-highlight .receipt-val {
+  color: var(--color-gold-dark);
+}
+
+/* Navigation Buttons */
+.sim-nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  gap: 15px;
+}
+
+.sim-nav-buttons .btn {
+  padding: 12px 25px;
+  font-size: 0.95rem;
+  font-family: var(--font-body);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.btn-submit-whatsapp {
+  flex-grow: 1;
+  background-color: #25D366;
+  border-color: #25D366;
+  color: #ffffff;
+}
+
+.btn-submit-whatsapp:hover {
+  background-color: #20ba5a;
+  border-color: #20ba5a;
+  box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+}
+
+/* ==========================================================================
+   FAQ Section (Accordion FAQ)
+   ========================================================================== */
+.faq-section {
+  padding: 100px 0;
+  background-color: var(--color-bg-light);
+  border-top: 1px solid rgba(212, 175, 55, 0.08);
+}
+
+.faq-accordion-wrapper {
+  max-width: 800px;
+  margin: 50px auto 0;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.faq-item {
+  background-color: #ffffff;
+  border: 1px solid rgba(212, 175, 55, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.faq-item:hover {
+  border-color: rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 15px rgba(60, 42, 33, 0.015);
+}
+
+.faq-toggle {
+  width: 100%;
+  padding: 22px 30px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.faq-question {
+  font-family: var(--font-title);
+  color: var(--color-primary);
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.4;
+  padding-right: 15px;
+}
+
+.faq-icon {
+  fill: var(--color-gold);
+  transition: transform 0.3s ease;
+  flex-shrink: 0;
+}
+
+.faq-toggle[aria-expanded="true"] .faq-icon {
+  transform: rotate(45deg);
+}
+
+.faq-content {
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out;
+}
+
+.faq-toggle[aria-expanded="true"] + .faq-content {
+  opacity: 1;
+}
+
+.faq-answer {
+  padding: 0 30px 25px;
+  font-family: var(--font-body);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.faq-answer p {
+  margin-bottom: 0;
+}
+
+.faq-answer strong {
+  color: var(--color-primary);
+}
+
+/* Media Queries for New Sections */
+@media (max-width: 991px) {
+  .simulator-grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .experience-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .sim-options-grid {
+    grid-template-columns: 1fr;
+  }
+  .simulator-card-wrapper {
+    padding: 15px;
+  }
+  .simulator-card {
+    padding: 25px 15px;
+  }
+  .faq-toggle {
+    padding: 18px 20px;
+  }
+  .faq-answer {
+    padding: 0 20px 20px;
+  }
+}
+
+
