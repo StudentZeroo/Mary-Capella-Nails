@@ -1,0 +1,10 @@
+# Antigravity agent folders
+.agent/
+.agents/
+
+# Backup files
+*.backup
+
+# Log files
+*.log
+.system_generated/
