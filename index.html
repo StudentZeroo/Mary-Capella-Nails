@@ -375,6 +375,11 @@
                 <div class="sim-step-line"></div>
                 <div class="sim-step-indicator" data-step="3">
                   <span class="step-num">3</span>
+                  <span class="step-label">Agenda</span>
+                </div>
+                <div class="sim-step-line"></div>
+                <div class="sim-step-indicator" data-step="4">
+                  <span class="step-num">4</span>
                   <span class="step-label">Resumo</span>
                 </div>
               </div>
@@ -476,8 +481,43 @@
                   </div>
                 </div>
 
-                <!-- Step 3: Name & Receipt Summary -->
+                <!-- Step 3: Date & Time Selection -->
                 <div class="sim-step-content" data-step="3">
+                  <h3 class="sim-step-title">Escolha a data e período ideais</h3>
+                  <p class="sim-step-desc">Indique o dia e o período de preferência para o seu atendimento exclusivo a domicílio:</p>
+                  
+                  <div class="sim-name-input-wrapper" style="margin-bottom: 20px;">
+                    <label for="booking-date" class="input-label">Data Preferencial:</label>
+                    <input type="date" id="booking-date" class="sim-text-input" required>
+                  </div>
+
+                  <label class="input-label" style="display: block; margin-bottom: 10px;">Período Preferencial:</label>
+                  <div class="sim-options-grid option-radios" style="margin-bottom: 10px;">
+                    <label class="sim-option-card radio-card">
+                      <input type="radio" name="booking-time" value="Manhã (09h - 12h)" checked class="sim-radio">
+                      <div class="option-content">
+                        <span class="option-title">Manhã</span>
+                        <span class="option-details">Das 09h às 12h</span>
+                      </div>
+                    </label>
+
+                    <label class="sim-option-card radio-card">
+                      <input type="radio" name="booking-time" value="Tarde (13h - 18h)" class="sim-radio">
+                      <div class="option-content">
+                        <span class="option-title">Tarde</span>
+                        <span class="option-details">Das 13h às 18h</span>
+                      </div>
+                    </label>
+                  </div>
+
+                  <div class="sim-nav-buttons">
+                    <button type="button" class="btn btn-secondary btn-prev" data-prev="2">Voltar</button>
+                    <button type="button" class="btn btn-primary btn-next" data-next="4">Avançar</button>
+                  </div>
+                </div>
+
+                <!-- Step 4: Name & Receipt Summary -->
+                <div class="sim-step-content" data-step="4">
                   <h3 class="sim-step-title">Resumo do seu atendimento</h3>
                   
                   <div class="sim-name-input-wrapper">
@@ -508,11 +548,22 @@
                         <span>Valor Total Estimado:</span>
                         <span id="receipt-total-price" class="receipt-val">R$ 0,00</span>
                       </div>
+                      
+                      <div class="receipt-divider"></div>
+                      
+                      <div class="receipt-total-row">
+                        <span>Data Sugerida:</span>
+                        <span id="receipt-date-val" class="receipt-val">-</span>
+                      </div>
+                      <div class="receipt-total-row">
+                        <span>Período Sugerido:</span>
+                        <span id="receipt-time-val" class="receipt-val">-</span>
+                      </div>
                     </div>
                   </div>
 
                   <div class="sim-nav-buttons">
-                    <button type="button" class="btn btn-secondary btn-prev" data-prev="2">Voltar</button>
+                    <button type="button" class="btn btn-secondary btn-prev" data-prev="3">Voltar</button>
                     <button type="button" id="btn-submit-simulator" class="btn btn-primary btn-submit-whatsapp">Solicitar Agendamento via WhatsApp</button>
                   </div>
                 </div>

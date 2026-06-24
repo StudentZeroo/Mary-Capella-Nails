@@ -374,14 +374,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnToStep2 = document.getElementById('sim-btn-to-step2');
     const submitBtn = document.getElementById('btn-submit-simulator');
     
+    // Date & Time Inputs
+    const dateInput = document.getElementById('booking-date');
+    const radioTimes = document.getElementsByName('booking-time');
+
     // Receipt Elements
     const receiptItemsList = document.getElementById('receipt-items-list');
     const receiptTotalTime = document.getElementById('receipt-total-time');
     const receiptTotalPrice = document.getElementById('receipt-total-price');
+    const receiptDateVal = document.getElementById('receipt-date-val');
+    const receiptTimeVal = document.getElementById('receipt-time-val');
 
     let selectedServices = [];
     let selectedAddons = [];
     let selectedNeighborhood = 'Jaraguá';
+
+    // Set tomorrow's date as the minimum date limit
+    if (dateInput) {
+      const today = new Date();
+      today.setDate(today.getDate() + 1); // Amanhã
+      const tomorrowStr = today.toISOString().split('T')[0];
+      dateInput.min = tomorrowStr;
+      dateInput.value = tomorrowStr;
+    }
 
     // Enable/Disable Avançar button in Step 1 based on selection
     const checkStep1Validation = () => {
@@ -400,12 +415,21 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.addEventListener('click', () => {
         const nextStepNum = parseInt(btn.getAttribute('data-next'));
         
-        // Validation before moving to step 3
-        if (nextStepNum === 3) {
+        // Validation before moving past step 1 (Services selection)
+        if (nextStepNum > 1) {
           const step1Checked = Array.from(serviceCheckboxes).some(cb => cb.checked && cb.name === 'services');
           if (!step1Checked) {
             alert('Por favor, selecione pelo menos um serviço principal.');
             goToStep(1);
+            return;
+          }
+        }
+
+        // Validation for step 3 (Date Selection) before moving to step 4
+        if (nextStepNum === 4) {
+          if (dateInput && !dateInput.value) {
+            alert('Por favor, escolha uma data para o seu atendimento.');
+            dateInput.focus();
             return;
           }
         }
@@ -442,8 +466,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      // Calculate and update receipt if moving to step 3
-      if (stepNum === 3) {
+      // Calculate and update receipt if moving to step 4
+      if (stepNum === 4) {
         updateReceipt();
       }
     };
@@ -485,6 +509,20 @@ document.addEventListener('DOMContentLoaded', () => {
       // Neighborhood selection
       const checkedNeighborhood = Array.from(radioNeighborhoods).find(r => r.checked);
       selectedNeighborhood = checkedNeighborhood ? checkedNeighborhood.value : 'Jaraguá';
+
+      // Date and Time selection
+      let selectedDate = '-';
+      if (dateInput && dateInput.value) {
+        const parts = dateInput.value.split('-');
+        if (parts.length === 3) {
+          selectedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+        }
+      }
+      const checkedTime = Array.from(radioTimes).find(t => t.checked);
+      const selectedTime = checkedTime ? checkedTime.value : '-';
+
+      if (receiptDateVal) receiptDateVal.innerText = selectedDate;
+      if (receiptTimeVal) receiptTimeVal.innerText = selectedTime;
       
       // Format Duration
       const hours = Math.floor(totalMinutes / 60);
@@ -515,11 +553,24 @@ document.addEventListener('DOMContentLoaded', () => {
           return;
         }
 
+        // Date and Time selection
+        let selectedDate = '-';
+        if (dateInput && dateInput.value) {
+          const parts = dateInput.value.split('-');
+          if (parts.length === 3) {
+            selectedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
+          }
+        }
+        const checkedTime = Array.from(radioTimes).find(t => t.checked);
+        const selectedTime = checkedTime ? checkedTime.value : '-';
+
         // Build WhatsApp text
         let messageText = `Olá! Gostaria de solicitar um agendamento de unhas a domicílio no AuraNativa.\n\n`;
         messageText += `*Dados do Agendamento:*\n`;
         messageText += `• Nome: ${clientName}\n`;
-        messageText += `• Bairro de Atendimento: ${selectedNeighborhood}\n\n`;
+        messageText += `• Bairro: ${selectedNeighborhood}\n`;
+        messageText += `• Data Sugerida: ${selectedDate}\n`;
+        messageText += `• Período Sugerido: ${selectedTime}\n\n`;
         
         messageText += `*Serviços Escolhidos:*\n`;
         selectedServices.forEach(s => {
