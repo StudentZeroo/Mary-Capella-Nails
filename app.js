@@ -524,6 +524,16 @@ document.addEventListener('DOMContentLoaded', () => {
       if (receiptDateVal) receiptDateVal.innerText = selectedDate;
       if (receiptTimeVal) receiptTimeVal.innerText = selectedTime;
       
+      // Calculate Deposit (50%)
+      const depositPrice = totalPrice / 2;
+      const remainingPrice = totalPrice - depositPrice;
+
+      const receiptDepositVal = document.getElementById('receipt-deposit-val');
+      const receiptRemainingVal = document.getElementById('receipt-remaining-val');
+
+      if (receiptDepositVal) receiptDepositVal.innerText = `R$ ${depositPrice},00`;
+      if (receiptRemainingVal) receiptRemainingVal.innerText = `R$ ${remainingPrice},00`;
+
       // Format Duration
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
@@ -592,6 +602,9 @@ document.addEventListener('DOMContentLoaded', () => {
           totalMinutes += item.time;
         });
 
+        const depositPrice = totalPrice / 2;
+        const remainingPrice = totalPrice - depositPrice;
+
         const hours = Math.floor(totalMinutes / 60);
         const minutes = totalMinutes % 60;
         const formattedDuration = hours > 0 
@@ -600,8 +613,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         messageText += `\n*Estimativa do Atendimento:*\n`;
         messageText += `• Duração: ${formattedDuration}\n`;
-        messageText += `• Valor Estimado: *R$ ${totalPrice},00*\n\n`;
-        messageText += `Qual é a sua disponibilidade de horários para esta semana?`;
+        messageText += `• Valor Total: *R$ ${totalPrice},00*\n`;
+        messageText += `• Sinal de Reserva (50% Pix): *R$ ${depositPrice},00*\n`;
+        messageText += `• Saldo no Atendimento: *R$ ${remainingPrice},00*\n\n`;
+        messageText += `Entendo que para garantir a vaga na data agendada, o sinal de 50% deve ser pago adiantado via Pix. Qual é a sua disponibilidade de horários para esta data?`;
 
         const encodedMessage = encodeURIComponent(messageText);
         const whatsappNumber = '5511925867177'; // Novo número da especialista
