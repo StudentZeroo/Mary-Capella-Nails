@@ -475,6 +475,34 @@
                     </label>
                   </div>
 
+                  <!-- Exact Address Input Fields -->
+                  <div class="sim-address-fields">
+                    <label class="input-label address-section-title">Endereço de Atendimento</label>
+                    <p class="input-subtitle">Digite onde você quer receber o atendimento exclusivo:</p>
+                    
+                    <div class="address-row-grid">
+                      <div class="sim-name-input-wrapper">
+                        <label for="client-street" class="input-label sub-label">Rua / Avenida:</label>
+                        <input type="text" id="client-street" placeholder="Digite o nome da rua/avenida" required class="sim-text-input">
+                      </div>
+                      <div class="sim-name-input-wrapper val-number">
+                        <label for="client-number" class="input-label sub-label">Número:</label>
+                        <input type="text" id="client-number" placeholder="Nº" required class="sim-text-input">
+                      </div>
+                    </div>
+
+                    <div class="address-row-grid">
+                      <div class="sim-name-input-wrapper">
+                        <label for="client-complement" class="input-label sub-label">Apto / Bloco / Complemento (Opcional):</label>
+                        <input type="text" id="client-complement" placeholder="Ex: Apto 32 Bloco B" class="sim-text-input">
+                      </div>
+                      <div class="sim-name-input-wrapper">
+                        <label for="client-reference" class="input-label sub-label">Ponto de Referência (Opcional):</label>
+                        <input type="text" id="client-reference" placeholder="Ex: Próximo ao chaveiro" class="sim-text-input">
+                      </div>
+                    </div>
+                  </div>
+
                   <div class="sim-nav-buttons">
                     <button type="button" class="btn btn-secondary btn-prev" data-prev="1">Voltar</button>
                     <button type="button" class="btn btn-primary btn-next" data-next="3">Avançar</button>
@@ -568,6 +596,56 @@
                         <span id="receipt-time-val" class="receipt-val">-</span>
                       </div>
                     </div>
+                  </div>
+
+                  <!-- Pix Automatic Payment Panel -->
+                  <div class="sim-pix-payment-box">
+                    <div class="pix-header">
+                      <svg viewBox="0 0 120 120" class="pix-icon" aria-hidden="true">
+                        <path d="M60 15L24 51L15 60L24 69L60 105L96 69L105 60L96 51L60 15ZM60 25.5L89.5 55L82.5 62L60 39.5L37.5 62L30.5 55L60 25.5ZM37.5 62L60 84.5L82.5 62L89.5 69L60 98.5L30.5 69L37.5 62Z" />
+                      </svg>
+                      <h4 class="pix-title">Sinal de Reserva via Pix</h4>
+                    </div>
+                    <p class="pix-subtitle">Para confirmar seu horário, realize o pagamento do sinal de 50%:</p>
+                    
+                    <div class="pix-body-layout">
+                      <div class="pix-qrcode-wrapper">
+                        <div class="pix-qrcode-border">
+                          <img id="pix-qrcode" src="" alt="QR Code Pix" class="pix-qrcode-img">
+                          <div id="pix-qrcode-placeholder" class="pix-qrcode-placeholder-text">Gerando...</div>
+                        </div>
+                      </div>
+                      
+                      <div class="pix-instructions-wrapper">
+                        <div class="pix-value-highlight">
+                          <span class="pix-value-label">Valor do Sinal:</span>
+                          <span id="pix-value-amount" class="pix-value-val">R$ 0,00</span>
+                        </div>
+                        
+                        <div class="pix-copia-cola-wrapper">
+                          <label for="pix-code-input" class="input-label sub-label">Código Pix Copia e Cola:</label>
+                          <div class="pix-input-group">
+                            <input type="text" id="pix-code-input" readonly class="sim-text-input pix-code-text" value="Carregando...">
+                            <button type="button" id="btn-copy-pix-code" class="btn btn-secondary btn-copy-pix">
+                              <span id="copy-btn-text">Copiar</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        <div class="pix-key-info">
+                          Chave Pix (WhatsApp): <strong>(11) 92586-7177</strong>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Confirm Pix Paid Checkbox -->
+                    <label class="sim-option-card pix-confirm-card">
+                      <input type="checkbox" id="confirm-pix-checkbox" class="sim-checkbox">
+                      <div class="option-content">
+                        <span class="option-title">Já realizei o pagamento do Pix</span>
+                        <span class="option-details">O comprovante poderá ser enviado no WhatsApp a seguir.</span>
+                      </div>
+                    </label>
                   </div>
 
                   <div class="sim-nav-buttons">

@@ -389,6 +389,84 @@ document.addEventListener('DOMContentLoaded', () => {
     let selectedAddons = [];
     let selectedNeighborhood = 'Jaraguá';
 
+    // --- Helper function to generate Static Pix Payload ---
+    const generateStaticPix = (key, amount, merchantName, merchantCity, txid = '***') => {
+      const formatTag = (tag, value) => {
+        const valStr = String(value);
+        const len = String(valStr.length).padStart(2, '0');
+        return `${tag}${len}${valStr}`;
+      };
+
+      // 00: Payload Format Indicator
+      let payload = formatTag('00', '01');
+
+      // 26: Merchant Account Information
+      const gui = formatTag('00', 'br.gov.bcb.pix');
+      const cleanKey = key.replace(/\D/g, ''); // strip formatting
+      let formattedKey = cleanKey;
+      if (formattedKey.length === 11) { // 11 digits cell phone
+        formattedKey = '+55' + formattedKey;
+      }
+      const keyTag = formatTag('01', formattedKey);
+      const merchantAccountInfo = gui + keyTag;
+      payload += formatTag('26', merchantAccountInfo);
+
+      // 52: Merchant Category Code
+      payload += formatTag('52', '0000');
+
+      // 53: Transaction Currency (986 = BRL)
+      payload += formatTag('53', '986');
+
+      // 54: Transaction Amount
+      if (amount > 0) {
+        const amountStr = Number(amount).toFixed(2);
+        payload += formatTag('54', amountStr);
+      }
+
+      // 58: Country Code
+      payload += formatTag('58', 'BR');
+
+      // 59: Merchant Name
+      const cleanName = merchantName
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9 ]/g, "")
+        .substring(0, 25);
+      payload += formatTag('59', cleanName);
+
+      // 60: Merchant City
+      const cleanCity = merchantCity
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9 ]/g, "")
+        .substring(0, 15)
+        .toUpperCase();
+      payload += formatTag('60', cleanCity);
+
+      // 62: Additional Data Field Template
+      const txidTag = formatTag('05', txid);
+      payload += formatTag('62', txidTag);
+
+      // 63: CRC16 Tag and length
+      payload += '6304';
+
+      // CRC16 Calculation
+      let crc = 0xFFFF;
+      for (let i = 0; i < payload.length; i++) {
+        let code = payload.charCodeAt(i);
+        crc ^= (code << 8);
+        for (let j = 0; j < 8; j++) {
+          if ((crc & 0x8000) !== 0) {
+            crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
+          } else {
+            crc = (crc << 1) & 0xFFFF;
+          }
+        }
+      }
+      const crcHex = crc.toString(16).toUpperCase().padStart(4, '0');
+      return payload + crcHex;
+    };
+
     // Set tomorrow's date as the minimum date limit
     if (dateInput) {
       const today = new Date();
@@ -421,6 +499,22 @@ document.addEventListener('DOMContentLoaded', () => {
           if (!step1Checked) {
             alert('Por favor, selecione pelo menos um serviço principal.');
             goToStep(1);
+            return;
+          }
+        }
+
+        // Validation for step 2 (Address Selection) before moving to step 3
+        if (nextStepNum === 3) {
+          const streetInput = document.getElementById('client-street');
+          const numberInput = document.getElementById('client-number');
+          if (streetInput && !streetInput.value.trim()) {
+            alert('Por favor, informe a rua ou avenida para o atendimento.');
+            streetInput.focus();
+            return;
+          }
+          if (numberInput && !numberInput.value.trim()) {
+            alert('Por favor, informe o número do endereço.');
+            numberInput.focus();
             return;
           }
         }
@@ -543,7 +637,64 @@ document.addEventListener('DOMContentLoaded', () => {
 
       receiptTotalTime.innerText = formattedDuration;
       receiptTotalPrice.innerText = `R$ ${totalPrice},00`;
+
+      // --- Dynamic Pix Generator and QR Code Update ---
+      const pixValueAmt = document.getElementById('pix-value-amount');
+      const pixCodeInput = document.getElementById('pix-code-input');
+      const pixQrcodeImg = document.getElementById('pix-qrcode');
+      
+      if (pixValueAmt) {
+        pixValueAmt.innerText = `R$ ${depositPrice},00`;
+      }
+      
+      if (depositPrice > 0) {
+        const pixCode = generateStaticPix('11925867177', depositPrice, 'AuraNativa Beauty', 'Sao Paulo');
+        if (pixCodeInput) {
+          pixCodeInput.value = pixCode;
+        }
+        if (pixQrcodeImg) {
+          pixQrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixCode)}`;
+        }
+      } else {
+        if (pixCodeInput) {
+          pixCodeInput.value = 'Selecione serviços para gerar o Pix';
+        }
+        if (pixQrcodeImg) {
+          pixQrcodeImg.src = '';
+        }
+      }
     };
+
+    // --- Copy Pix Code Clipboard Listener ---
+    const copyPixBtn = document.getElementById('btn-copy-pix-code');
+    const pixCodeInputText = document.getElementById('pix-code-input');
+    const copyBtnText = document.getElementById('copy-btn-text');
+    
+    if (copyPixBtn && pixCodeInputText) {
+      copyPixBtn.addEventListener('click', () => {
+        const valueToCopy = pixCodeInputText.value;
+        if (valueToCopy && valueToCopy !== 'Carregando...' && valueToCopy !== 'Selecione serviços para gerar o Pix') {
+          navigator.clipboard.writeText(valueToCopy).then(() => {
+            if (copyBtnText) {
+              copyBtnText.innerText = 'Copiado!';
+              copyPixBtn.classList.remove('btn-secondary');
+              copyPixBtn.style.backgroundColor = '#25D366'; // Success Green
+              copyPixBtn.style.color = '#ffffff';
+              
+              setTimeout(() => {
+                copyBtnText.innerText = 'Copiar';
+                copyPixBtn.style.backgroundColor = '';
+                copyPixBtn.style.color = '';
+                copyPixBtn.classList.add('btn-secondary');
+              }, 2000);
+            }
+          }).catch(err => {
+            console.error('Failed to copy text: ', err);
+            alert('Não foi possível copiar automaticamente. Selecione o código e copie manualmente.');
+          });
+        }
+      });
+    }
 
     // Form Submit Event (Build wa.me link dynamically)
     if (submitBtn) {
@@ -554,6 +705,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!clientName) {
           alert('Por favor, informe seu nome completo para o agendamento.');
           clientNameInput.focus();
+          return;
+        }
+
+        const clientStreet = document.getElementById('client-street').value.trim();
+        const clientNumber = document.getElementById('client-number').value.trim();
+        const clientComplement = document.getElementById('client-complement').value.trim();
+        const clientReference = document.getElementById('client-reference').value.trim();
+
+        if (!clientStreet || !clientNumber) {
+          alert('Por favor, informe o seu endereço completo (Rua e Número) no Passo 2.');
+          goToStep(2);
           return;
         }
 
@@ -574,11 +736,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const checkedTime = Array.from(radioTimes).find(t => t.checked);
         const selectedTime = checkedTime ? checkedTime.value : '-';
 
+        // Check Pix Paid Checkbox
+        const confirmPixCheckbox = document.getElementById('confirm-pix-checkbox');
+        const pixPaid = confirmPixCheckbox ? confirmPixCheckbox.checked : false;
+
         // Build WhatsApp text
         let messageText = `Olá! Gostaria de solicitar um agendamento de unhas a domicílio no AuraNativa.\n\n`;
         messageText += `*Dados do Agendamento:*\n`;
         messageText += `• Nome: ${clientName}\n`;
         messageText += `• Bairro: ${selectedNeighborhood}\n`;
+        messageText += `• Endereço: ${clientStreet}, ${clientNumber}${clientComplement ? ' - ' + clientComplement : ''}\n`;
+        if (clientReference) {
+          messageText += `• Referência: ${clientReference}\n`;
+        }
         messageText += `• Data Sugerida: ${selectedDate}\n`;
         messageText += `• Período Sugerido: ${selectedTime}\n\n`;
         
@@ -616,7 +786,12 @@ document.addEventListener('DOMContentLoaded', () => {
         messageText += `• Valor Total: *R$ ${totalPrice},00*\n`;
         messageText += `• Sinal de Reserva (50% Pix): *R$ ${depositPrice},00*\n`;
         messageText += `• Saldo no Atendimento: *R$ ${remainingPrice},00*\n\n`;
-        messageText += `Entendo que para garantir a vaga na data agendada, o sinal de 50% deve ser pago adiantado via Pix. Qual é a sua disponibilidade de horários para esta data?`;
+
+        if (pixPaid) {
+          messageText += `*Sinal de Reserva:* Já realizei o Pix de R$ ${depositPrice},00 e vou enviar o comprovante em anexo. Como está sua agenda de horários para a data selecionada?`;
+        } else {
+          messageText += `*Sinal de Reserva:* Entendo que para garantir a vaga na data agendada, o sinal de 50% deve ser pago adiantado via Pix. Como está sua agenda de horários para esta data?`;
+        }
 
         const encodedMessage = encodeURIComponent(messageText);
         const whatsappNumber = '5511925867177'; // Novo número da especialista
