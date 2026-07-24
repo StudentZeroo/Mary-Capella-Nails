@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd \"C:/Users/Lider TKZ/Downloads/Camélia Nail Atelier Design System\" && mkdir -p ./_imgcheck && cp /tmp/nailcheck/*.jpg ./_imgcheck/ && ls ./_imgcheck)",
+      "Bash(python -m http.server 3000 --bind 127.0.0.1)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://127.0.0.1:3000/ui_kits/landing/index.html\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://127.0.0.1:3000/styles.css\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://127.0.0.1:3000/_ds_bundle.js\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://127.0.0.1:3000/ui_kits/landing/assets/hero-main.jpg\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://127.0.0.1:3000/ui_kits/landing/data.js\")",
+      "mcp__Claude_Preview__preview_start"
+    ]
+  }
+}

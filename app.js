@@ -1,5 +1,5 @@
 /* ==========================================================================
-   AuraNativa Beauty - Interactive Scripts
+   Mary Capella Nails - Interactive Scripts
    Features: Mobile Navigation Toggle, Intersection Observer Scroll Animations,
              Active Section Navigation Highlighting, Header Scroll Effects.
    ========================================================================== */
@@ -648,7 +648,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       if (depositPrice > 0) {
-        const pixCode = generateStaticPix('11925867177', depositPrice, 'AuraNativa Beauty', 'Sao Paulo');
+        const pixCode = generateStaticPix('11925867177', depositPrice, 'Mary Capella Nails', 'Sao Paulo');
         if (pixCodeInput) {
           pixCodeInput.value = pixCode;
         }
@@ -741,10 +741,12 @@ document.addEventListener('DOMContentLoaded', () => {
         const pixPaid = confirmPixCheckbox ? confirmPixCheckbox.checked : false;
 
         // Build WhatsApp text
-        let messageText = `Olá! Gostaria de solicitar um agendamento de unhas a domicílio no AuraNativa.\n\n`;
+        let messageText = `Olá! Gostaria de solicitar um agendamento no atelier Mary Capella Nails.
+
+`;
         messageText += `*Dados do Agendamento:*\n`;
         messageText += `• Nome: ${clientName}\n`;
-        messageText += `• Bairro: ${selectedNeighborhood}\n`;
+        
         messageText += `• Endereço: ${clientStreet}, ${clientNumber}${clientComplement ? ' - ' + clientComplement : ''}\n`;
         if (clientReference) {
           messageText += `• Referência: ${clientReference}\n`;
