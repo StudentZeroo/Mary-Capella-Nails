@@ -309,19 +309,44 @@ document.addEventListener('DOMContentLoaded', () => {
       particles.push(new Leaf());
     }
 
-    // Loop de Animação
+    // Loop de animação com respeito à preferência de movimento reduzido
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let animationFrameId = null;
+
     const animate = () => {
+      if (reducedMotionQuery.matches || document.hidden) {
+        animationFrameId = null;
+        return;
+      }
+
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
+
       particles.forEach(p => {
         p.update();
         p.draw();
       });
 
-      requestAnimationFrame(animate);
+      animationFrameId = requestAnimationFrame(animate);
     };
 
-    animate();
+    const syncCanvasAnimation = () => {
+      if (reducedMotionQuery.matches || document.hidden) {
+        if (animationFrameId !== null) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        return;
+      }
+
+      if (animationFrameId === null) {
+        animate();
+      }
+    };
+
+    reducedMotionQuery.addEventListener('change', syncCanvasAnimation);
+    document.addEventListener('visibilitychange', syncCanvasAnimation);
+    syncCanvasAnimation();
   }
 
   // --- 7. FAQ Accordion Toggle ---
@@ -369,10 +394,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const stepContents = document.querySelectorAll('.sim-step-content');
     const stepIndicators = document.querySelectorAll('.sim-step-indicator');
     const serviceCheckboxes = document.querySelectorAll('.sim-checkbox');
-    const radioNeighborhoods = document.querySelectorAll('.sim-radio');
     const clientNameInput = document.getElementById('client-name');
     const btnToStep2 = document.getElementById('sim-btn-to-step2');
-    const submitBtn = document.getElementById('btn-submit-simulator');
     
     // Date & Time Inputs
     const dateInput = document.getElementById('booking-date');
@@ -387,91 +410,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let selectedServices = [];
     let selectedAddons = [];
-    let selectedNeighborhood = 'Jaraguá';
-
-    // --- Helper function to generate Static Pix Payload ---
-    const generateStaticPix = (key, amount, merchantName, merchantCity, txid = '***') => {
-      const formatTag = (tag, value) => {
-        const valStr = String(value);
-        const len = String(valStr.length).padStart(2, '0');
-        return `${tag}${len}${valStr}`;
-      };
-
-      // 00: Payload Format Indicator
-      let payload = formatTag('00', '01');
-
-      // 26: Merchant Account Information
-      const gui = formatTag('00', 'br.gov.bcb.pix');
-      const cleanKey = key.replace(/\D/g, ''); // strip formatting
-      let formattedKey = cleanKey;
-      if (formattedKey.length === 11) { // 11 digits cell phone
-        formattedKey = '+55' + formattedKey;
-      }
-      const keyTag = formatTag('01', formattedKey);
-      const merchantAccountInfo = gui + keyTag;
-      payload += formatTag('26', merchantAccountInfo);
-
-      // 52: Merchant Category Code
-      payload += formatTag('52', '0000');
-
-      // 53: Transaction Currency (986 = BRL)
-      payload += formatTag('53', '986');
-
-      // 54: Transaction Amount
-      if (amount > 0) {
-        const amountStr = Number(amount).toFixed(2);
-        payload += formatTag('54', amountStr);
-      }
-
-      // 58: Country Code
-      payload += formatTag('58', 'BR');
-
-      // 59: Merchant Name
-      const cleanName = merchantName
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9 ]/g, "")
-        .substring(0, 25);
-      payload += formatTag('59', cleanName);
-
-      // 60: Merchant City
-      const cleanCity = merchantCity
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9 ]/g, "")
-        .substring(0, 15)
-        .toUpperCase();
-      payload += formatTag('60', cleanCity);
-
-      // 62: Additional Data Field Template
-      const txidTag = formatTag('05', txid);
-      payload += formatTag('62', txidTag);
-
-      // 63: CRC16 Tag and length
-      payload += '6304';
-
-      // CRC16 Calculation
-      let crc = 0xFFFF;
-      for (let i = 0; i < payload.length; i++) {
-        let code = payload.charCodeAt(i);
-        crc ^= (code << 8);
-        for (let j = 0; j < 8; j++) {
-          if ((crc & 0x8000) !== 0) {
-            crc = ((crc << 1) ^ 0x1021) & 0xFFFF;
-          } else {
-            crc = (crc << 1) & 0xFFFF;
-          }
-        }
-      }
-      const crcHex = crc.toString(16).toUpperCase().padStart(4, '0');
-      return payload + crcHex;
-    };
 
     // Set tomorrow's date as the minimum date limit
     if (dateInput) {
       const today = new Date();
       today.setDate(today.getDate() + 1); // Amanhã
-      const tomorrowStr = today.toISOString().split('T')[0];
+      const formatLocalDate = (date) => {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+      };
+      const tomorrowStr = formatLocalDate(today);
       dateInput.min = tomorrowStr;
       dateInput.value = tomorrowStr;
     }
@@ -503,24 +453,8 @@ document.addEventListener('DOMContentLoaded', () => {
           }
         }
 
-        // Validation for step 2 (Address Selection) before moving to step 3
+        // Validation for step 2 (Date Selection) before moving to step 3
         if (nextStepNum === 3) {
-          const streetInput = document.getElementById('client-street');
-          const numberInput = document.getElementById('client-number');
-          if (streetInput && !streetInput.value.trim()) {
-            alert('Por favor, informe a rua ou avenida para o atendimento.');
-            streetInput.focus();
-            return;
-          }
-          if (numberInput && !numberInput.value.trim()) {
-            alert('Por favor, informe o número do endereço.');
-            numberInput.focus();
-            return;
-          }
-        }
-
-        // Validation for step 3 (Date Selection) before moving to step 4
-        if (nextStepNum === 4) {
           if (dateInput && !dateInput.value) {
             alert('Por favor, escolha uma data para o seu atendimento.');
             dateInput.focus();
@@ -560,8 +494,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
       });
 
-      // Calculate and update receipt if moving to step 4
-      if (stepNum === 4) {
+      // Calculate and update receipt when opening the summary
+      if (stepNum === 3) {
         updateReceipt();
       }
     };
@@ -592,17 +526,15 @@ document.addEventListener('DOMContentLoaded', () => {
           // Add item row to receipt
           const row = document.createElement('div');
           row.classList.add('receipt-item-row');
-          row.innerHTML = `
-            <span>• ${label}</span>
-            <span class="receipt-item-price">R$ ${price},00</span>
-          `;
+          const itemLabel = document.createElement('span');
+          const itemPrice = document.createElement('span');
+          itemLabel.textContent = `• ${label}`;
+          itemPrice.classList.add('receipt-item-price');
+          itemPrice.textContent = `R$ ${price},00`;
+          row.append(itemLabel, itemPrice);
           receiptItemsList.appendChild(row);
         }
       });
-
-      // Neighborhood selection
-      const checkedNeighborhood = Array.from(radioNeighborhoods).find(r => r.checked);
-      selectedNeighborhood = checkedNeighborhood ? checkedNeighborhood.value : 'Jaraguá';
 
       // Date and Time selection
       let selectedDate = '-';
@@ -618,16 +550,6 @@ document.addEventListener('DOMContentLoaded', () => {
       if (receiptDateVal) receiptDateVal.innerText = selectedDate;
       if (receiptTimeVal) receiptTimeVal.innerText = selectedTime;
       
-      // Calculate Deposit (50%)
-      const depositPrice = totalPrice / 2;
-      const remainingPrice = totalPrice - depositPrice;
-
-      const receiptDepositVal = document.getElementById('receipt-deposit-val');
-      const receiptRemainingVal = document.getElementById('receipt-remaining-val');
-
-      if (receiptDepositVal) receiptDepositVal.innerText = `R$ ${depositPrice},00`;
-      if (receiptRemainingVal) receiptRemainingVal.innerText = `R$ ${remainingPrice},00`;
-
       // Format Duration
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
@@ -637,172 +559,83 @@ document.addEventListener('DOMContentLoaded', () => {
 
       receiptTotalTime.innerText = formattedDuration;
       receiptTotalPrice.innerText = `R$ ${totalPrice},00`;
-
-      // --- Dynamic Pix Generator and QR Code Update ---
-      const pixValueAmt = document.getElementById('pix-value-amount');
-      const pixCodeInput = document.getElementById('pix-code-input');
-      const pixQrcodeImg = document.getElementById('pix-qrcode');
-      
-      if (pixValueAmt) {
-        pixValueAmt.innerText = `R$ ${depositPrice},00`;
-      }
-      
-      if (depositPrice > 0) {
-        const pixCode = generateStaticPix('11925867177', depositPrice, 'Mary Capella Nails', 'Sao Paulo');
-        if (pixCodeInput) {
-          pixCodeInput.value = pixCode;
-        }
-        if (pixQrcodeImg) {
-          pixQrcodeImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(pixCode)}`;
-        }
-      } else {
-        if (pixCodeInput) {
-          pixCodeInput.value = 'Selecione serviços para gerar o Pix';
-        }
-        if (pixQrcodeImg) {
-          pixQrcodeImg.src = '';
-        }
-      }
     };
 
-    // --- Copy Pix Code Clipboard Listener ---
-    const copyPixBtn = document.getElementById('btn-copy-pix-code');
-    const pixCodeInputText = document.getElementById('pix-code-input');
-    const copyBtnText = document.getElementById('copy-btn-text');
-    
-    if (copyPixBtn && pixCodeInputText) {
-      copyPixBtn.addEventListener('click', () => {
-        const valueToCopy = pixCodeInputText.value;
-        if (valueToCopy && valueToCopy !== 'Carregando...' && valueToCopy !== 'Selecione serviços para gerar o Pix') {
-          navigator.clipboard.writeText(valueToCopy).then(() => {
-            if (copyBtnText) {
-              copyBtnText.innerText = 'Copiado!';
-              copyPixBtn.classList.remove('btn-secondary');
-              copyPixBtn.style.backgroundColor = '#25D366'; // Success Green
-              copyPixBtn.style.color = '#ffffff';
-              
-              setTimeout(() => {
-                copyBtnText.innerText = 'Copiar';
-                copyPixBtn.style.backgroundColor = '';
-                copyPixBtn.style.color = '';
-                copyPixBtn.classList.add('btn-secondary');
-              }, 2000);
-            }
-          }).catch(err => {
-            console.error('Failed to copy text: ', err);
-            alert('Não foi possível copiar automaticamente. Selecione o código e copie manualmente.');
-          });
-        }
-      });
-    }
-
     // Form Submit Event (Build wa.me link dynamically)
-    if (submitBtn) {
-      submitBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        
-        const clientName = clientNameInput.value.trim();
-        if (!clientName) {
-          alert('Por favor, informe seu nome completo para o agendamento.');
-          clientNameInput.focus();
-          return;
+    simForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const clientName = clientNameInput.value.trim();
+      if (!clientName) {
+        alert('Por favor, informe seu nome completo para o agendamento.');
+        clientNameInput.focus();
+        return;
+      }
+
+      if (selectedServices.length === 0) {
+        alert('Por favor, selecione pelo menos um serviço.');
+        goToStep(1);
+        return;
+      }
+
+      // Date and Time selection
+      let selectedDate = '-';
+      if (dateInput && dateInput.value) {
+        const parts = dateInput.value.split('-');
+        if (parts.length === 3) {
+          selectedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
         }
+      }
+      const checkedTime = Array.from(radioTimes).find(t => t.checked);
+      const selectedTime = checkedTime ? checkedTime.value : '-';
 
-        const clientStreet = document.getElementById('client-street').value.trim();
-        const clientNumber = document.getElementById('client-number').value.trim();
-        const clientComplement = document.getElementById('client-complement').value.trim();
-        const clientReference = document.getElementById('client-reference').value.trim();
-
-        if (!clientStreet || !clientNumber) {
-          alert('Por favor, informe o seu endereço completo (Rua e Número) no Passo 2.');
-          goToStep(2);
-          return;
-        }
-
-        if (selectedServices.length === 0) {
-          alert('Por favor, selecione pelo menos um serviço.');
-          goToStep(1);
-          return;
-        }
-
-        // Date and Time selection
-        let selectedDate = '-';
-        if (dateInput && dateInput.value) {
-          const parts = dateInput.value.split('-');
-          if (parts.length === 3) {
-            selectedDate = `${parts[2]}/${parts[1]}/${parts[0]}`;
-          }
-        }
-        const checkedTime = Array.from(radioTimes).find(t => t.checked);
-        const selectedTime = checkedTime ? checkedTime.value : '-';
-
-        // Check Pix Paid Checkbox
-        const confirmPixCheckbox = document.getElementById('confirm-pix-checkbox');
-        const pixPaid = confirmPixCheckbox ? confirmPixCheckbox.checked : false;
-
-        // Build WhatsApp text
-        let messageText = `Olá! Gostaria de solicitar um agendamento no atelier Mary Capella Nails.
+      // Build WhatsApp text
+      let messageText = `Olá! Gostaria de solicitar um agendamento no studio Mary Capella Nails.
 
 `;
-        messageText += `*Dados do Agendamento:*\n`;
-        messageText += `• Nome: ${clientName}\n`;
-        
-        messageText += `• Endereço: ${clientStreet}, ${clientNumber}${clientComplement ? ' - ' + clientComplement : ''}\n`;
-        if (clientReference) {
-          messageText += `• Referência: ${clientReference}\n`;
-        }
-        messageText += `• Data Sugerida: ${selectedDate}\n`;
-        messageText += `• Período Sugerido: ${selectedTime}\n\n`;
-        
-        messageText += `*Serviços Escolhidos:*\n`;
-        selectedServices.forEach(s => {
-          messageText += `• ${s.label} (R$ ${s.price},00)\n`;
-        });
-        
-        if (selectedAddons.length > 0) {
-          messageText += `\n*Adicionais:*\n`;
-          selectedAddons.forEach(a => {
-            messageText += `• ${a.label} (R$ ${a.price},00)\n`;
-          });
-        }
+      messageText += `*Dados do Agendamento:*\n`;
+      messageText += `• Nome: ${clientName}\n`;
+      messageText += `• Data Sugerida: ${selectedDate}\n`;
+      messageText += `• Período Sugerido: ${selectedTime}\n\n`;
 
-        // Calculations
-        let totalMinutes = 0;
-        let totalPrice = 0;
-        selectedServices.concat(selectedAddons).forEach(item => {
-          totalPrice += item.price;
-          totalMinutes += item.time;
-        });
-
-        const depositPrice = totalPrice / 2;
-        const remainingPrice = totalPrice - depositPrice;
-
-        const hours = Math.floor(totalMinutes / 60);
-        const minutes = totalMinutes % 60;
-        const formattedDuration = hours > 0 
-          ? `${hours}h${minutes > 0 ? minutes + 'min' : ''}` 
-          : `${minutes}min`;
-
-        messageText += `\n*Estimativa do Atendimento:*\n`;
-        messageText += `• Duração: ${formattedDuration}\n`;
-        messageText += `• Valor Total: *R$ ${totalPrice},00*\n`;
-        messageText += `• Sinal de Reserva (50% Pix): *R$ ${depositPrice},00*\n`;
-        messageText += `• Saldo no Atendimento: *R$ ${remainingPrice},00*\n\n`;
-
-        if (pixPaid) {
-          messageText += `*Sinal de Reserva:* Já realizei o Pix de R$ ${depositPrice},00 e vou enviar o comprovante em anexo. Como está sua agenda de horários para a data selecionada?`;
-        } else {
-          messageText += `*Sinal de Reserva:* Entendo que para garantir a vaga na data agendada, o sinal de 50% deve ser pago adiantado via Pix. Como está sua agenda de horários para esta data?`;
-        }
-
-        const encodedMessage = encodeURIComponent(messageText);
-        const whatsappNumber = '5511925867177'; // Novo número da especialista
-        const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
-        
-        // Open WhatsApp in new tab
-        window.open(whatsappUrl, '_blank', 'noopener');
+      messageText += `*Serviços Escolhidos:*\n`;
+      selectedServices.forEach(s => {
+        messageText += `• ${s.label} (R$ ${s.price},00)\n`;
       });
-    }
+
+      if (selectedAddons.length > 0) {
+        messageText += `\n*Adicionais:*\n`;
+        selectedAddons.forEach(a => {
+          messageText += `• ${a.label} (R$ ${a.price},00)\n`;
+        });
+      }
+
+      // Calculations
+      let totalMinutes = 0;
+      let totalPrice = 0;
+      selectedServices.concat(selectedAddons).forEach(item => {
+        totalPrice += item.price;
+        totalMinutes += item.time;
+      });
+
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      const formattedDuration = hours > 0
+        ? `${hours}h${minutes > 0 ? minutes + 'min' : ''}`
+        : `${minutes}min`;
+
+      messageText += `\n*Estimativa do Atendimento:*\n`;
+      messageText += `• Duração: ${formattedDuration}\n`;
+      messageText += `• Valor inicial estimado: *R$ ${totalPrice},00*\n\n`;
+      messageText += `Entendo que o valor final e as instruções para o sinal de reserva via Pix serão confirmados pela Mary após a análise dos serviços. Como está sua agenda de horários para esta data?`;
+
+      const encodedMessage = encodeURIComponent(messageText);
+      const whatsappNumber = '5511925867177';
+      const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodedMessage}`;
+
+      // Open WhatsApp in new tab
+      window.open(whatsappUrl, '_blank', 'noopener');
+    });
   }
 
   // --- 9. Smooth Scroll for Custom Anchor Navigation ---

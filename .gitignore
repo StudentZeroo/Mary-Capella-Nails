@@ -8,3 +8,7 @@
 # Log files
 *.log
 .system_generated/
+
+# Python test cache
+__pycache__/
+*.py[cod]
